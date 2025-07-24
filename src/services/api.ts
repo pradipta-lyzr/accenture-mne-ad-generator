@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { AxiosResponse } from "axios";
 
-const API_BASE_URL = "http://localhost:8004";
+const API_BASE_URL = "https://accenture-mne.ca.lyzr.app";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -97,18 +97,17 @@ export class AdGeneratorAPI {
     final: boolean = false,
     userId: string = "default_user",
   ): Promise<AdGenerationResponse> {
-    
     const payload: any = {
       initial_prompt: message,
       feedback: feedback || "",
       user_id: userId,
     };
-    
+
     // Include session_id if available (for subsequent messages)
     if (sessionId) {
       payload.session_id = sessionId;
     }
-    
+
     // Only include final parameter if it's true
     if (final) {
       payload.final = true;
@@ -136,8 +135,20 @@ export class AdGeneratorAPI {
     feedback?: string,
     userId: string = "default_user",
   ): Promise<ChatResponse> {
-    const result = await this.sendMessage(message, sessionId, feedback, false, userId);
-    return result as ChatResponse;
+    const result = await this.sendMessage(
+      message,
+      sessionId,
+      feedback,
+      false,
+      userId,
+    );
+    return {
+      success: result.success,
+      session_id: result.session_id,
+      message: result.initial_prompt,
+      response: result.generated_post,
+      error: result.error,
+    };
   }
 
   /**
